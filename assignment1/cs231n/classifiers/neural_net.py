@@ -79,7 +79,14 @@ class TwoLayerNet(object):
         # shape (N, C).                                                             #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        #scores.shape = (H)
+        l0_score = X.dot(W1) + b1
 
+        #l1_score is our new x (after relU)
+        l1_score = np.maximum(0,l0_score)
+
+        #new scores for l2
+        scores =  l1_score.dot(W2) + b2
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -98,6 +105,21 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        #numeric stability
+        scores -= np.max(scores,axis = 1, keepdims = True)
+
+        #sum of exp
+        sum_exp_scores =  np.sum(np.exp(scores),axis = 1, keepdims = True)
+        s_matrix = np.exp(scores)/sum_exp_scores
+        loss = np.sum(-np.log(s_matrix[np.arange(N),y]))
+
+        #average
+        loss /= N
+        loss += reg* np.sum(W1*W1) + reg* np.sum(W2*W2)
+        # print(s_matrix)
+        # print(y)
+
+
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -110,6 +132,28 @@ class TwoLayerNet(object):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        s_matrix[np.arange(N), y] -= 1
+        s_matrix /= N
+
+        #gradient of W2
+        dW2 = l1_score.T.dot(s_matrix)
+        dW2 += reg * 2 * W2
+        grads['W2'] = dW2
+
+        #gradient of b2
+        db2 = np.sum(s_matrix,axis = 0)
+        grads['b2'] = db2
+
+        #gradient of W1
+        dW1 = s_matrix.dot(W2.T)  
+        drl = dW1 * (l0_score > 0)
+        dW1 = X.T.dot(drl)
+        dW1 += reg *2 * W1
+        grads['W1'] = dW1
+
+        #gradient of b1
+        db1 = np.sum(drl,axis = 0)
+        grads['b1'] = db1
 
         pass
 
@@ -155,14 +199,19 @@ class TwoLayerNet(object):
             # them in X_batch and y_batch respectively.                             #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            index_array = (np.random.choice(num_train,batch_size))
+            
+            X_batch = X[index_array]
+            y_batch = y[index_array]
 
             pass
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            # Compute loss and gradients using the current minibatch
             loss, grads = self.loss(X_batch, y=y_batch, reg=reg)
             loss_history.append(loss)
+            pass
+
+            # Compute loss and gradients using the current minibatch
 
             #########################################################################
             # TODO: Use the gradients in the grads dictionary to update the         #
@@ -171,8 +220,9 @@ class TwoLayerNet(object):
             # stored in the grads dictionary defined above.                         #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            for key in self.params:
+              self.params[key] -= learning_rate * grads[key]
 
-            pass
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -217,7 +267,8 @@ class TwoLayerNet(object):
         # TODO: Implement this function; it should be VERY simple!                #
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        y_pred = np.argmax( self.loss(X), axis=1)
+        print(y_pred)
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****

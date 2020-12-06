@@ -76,8 +76,29 @@ def softmax_loss_vectorized(W, X, y, reg):
     # regularization!                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    num_train = X.shape[0]
+    num_classes = W.shape[1]
 
-    pass
+    #softmax
+    softmax = lambda x : np.exp(x)/np.sum(np.exp(x))
+    scores =  X.dot(W)
+
+    #numerical stability
+    sum_exp_scores = np.exp(scores).sum(axis=1, keepdims=True)
+    s_matrix = np.exp(scores)/sum_exp_scores
+    loss += np.sum(-np.log(s_matrix[np.arange(num_train),y]))
+
+    #gradient
+    s_matrix[np.arange(num_train), y] -= 1
+    dW = X.T.dot(s_matrix)
+
+    #average
+    loss /= num_train
+    dW /= num_train
+
+    #regularize
+    loss += reg * np.sum(W*W)
+    dW += reg * 2*W
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
