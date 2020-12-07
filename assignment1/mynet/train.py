@@ -49,7 +49,7 @@ num_classes = 10
 # print(y_test.shape)
 
 mynet = MyTwoNet(input_size,hidden_size,num_classes)
-mynet.train(X_train.reshape(-1,28*28),y_train,X_val.reshape(-1,28*28),y_val)
+mynet.train(X_train.reshape(-1,28*28),y_train,X_val.reshape(-1,28*28),y_val, num_iters=10000)
 y_pred = np.argmax(mynet.loss(X_test.reshape(-1,28*28)),axis=1)
 
 #check accuracy

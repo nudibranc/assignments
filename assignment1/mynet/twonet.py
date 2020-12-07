@@ -79,7 +79,7 @@ class MyTwoNet():
     def train(self, X, y, X_val, y_val,
                 learning_rate=1e-3, learning_rate_decay=0.95,
                 reg=5e-6, num_iters=1000,
-                batch_size=300, verbose=True):
+                batch_size=300, verbose=False):
         #loop and compute loss 
         num_train = X.shape[0]
         for it in range(num_iters):
@@ -95,6 +95,9 @@ class MyTwoNet():
             loss, grads = self.loss(X_batch,y_batch,reg=reg)
         
             #backward pass
+            if it % 100 == 0 and verbose == True:
+                print(f"loss: {loss} iteration: {it}")
+                
             for key in self.params:
                 self.params[key] -= learning_rate * grads[key]
        
