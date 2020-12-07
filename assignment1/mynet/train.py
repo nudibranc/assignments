@@ -49,7 +49,7 @@ print(y_test.shape)
 
 #check accuracy
 print(np.mean(y_pred == y_test))
-imshow(X_test[10])
-print(y_pred[10])
+imshow(X_test[344])
+print(y_pred[344])
 plt.show()
 

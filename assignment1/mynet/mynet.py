@@ -43,7 +43,7 @@ class TwoLayerNet(object):
         self.params['W2'] = std * np.random.randn(hidden_size, output_size)
         self.params['b2'] = np.zeros(output_size)
 
-    def loss(self, X, y=None, reg=0.0):
+    def loss(self, X, y=None, reg=0.01):
         """
         Compute the loss and gradients for a two layer fully connected neural
         network.
@@ -108,7 +108,7 @@ class TwoLayerNet(object):
         #numeric stability
         scores -= np.max(scores,axis = 1, keepdims = True)
 
-        #sum of exp
+        #sum of exp 
         sum_exp_scores =  np.sum(np.exp(scores),axis = 1, keepdims = True)
         s_matrix = np.exp(scores)/sum_exp_scores
         loss = np.sum(-np.log(s_matrix[np.arange(N),y]))
@@ -141,7 +141,7 @@ class TwoLayerNet(object):
         grads['W2'] = dW2
 
         #gradient of b2
-        db2 = np.sum(s_matrix,axis = 0)
+        db2 = np.sum(s_matrix,axis=0)
         grads['b2'] = db2
 
         #gradient of W1
@@ -163,8 +163,8 @@ class TwoLayerNet(object):
 
     def train(self, X, y, X_val, y_val,
               learning_rate=1e-3, learning_rate_decay=0.95,
-              reg=5e-6, num_iters=1000,
-              batch_size=200, verbose=False):
+              reg=5e-6, num_iters=10000,
+              batch_size=300, verbose=True):
         """
         Train this neural network using stochastic gradient descent.
 
