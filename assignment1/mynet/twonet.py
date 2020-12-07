@@ -52,6 +52,8 @@ class MyTwoNet():
         #compute gradients of W1, b1, W2, b2, 
         grads = {}
         softmax_matrix[np.arange(N),y] -= 1
+        
+        #average gradient instead of sum
         softmax_matrix /= N
 
         #gradient of W2
@@ -96,7 +98,9 @@ class MyTwoNet():
         
             #backward pass
             if it % 100 == 0 and verbose == True:
-                print(f"loss: {loss} iteration: {it}")
+                y_batch_preds = np.argmax(self.loss(X_val),axis = 1)
+                batch_acc = np.mean(y_batch_preds == y_val)
+                print(f"loss: {loss} iteration: {it} accuracy: {batch_acc}")
                 
             for key in self.params:
                 self.params[key] -= learning_rate * grads[key]

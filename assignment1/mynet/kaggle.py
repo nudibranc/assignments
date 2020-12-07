@@ -38,14 +38,13 @@ hidden_size = 300
 
 #train
 mynet = MyTwoNet(input_size,hidden_size,num_classes)
-mynet.train(X_train.reshape(-1,28*28),labels,X_train.reshape(-1,28*28),labels, num_iters=10000, verbose= False)
+mynet.train(X_train.reshape(-1,28*28),y_train,X_test.reshape(-1,28*28),
+                y_test, num_iters=1000, verbose= True)
 
 #predict
 y_pred = np.argmax(mynet.loss(final_x.reshape(-1,28*28)),axis=1)
 
 #print
-for i in range(28000):
-    print(f"{str(i+1)},{y_pred[i]}")
-imshow(final_x.reshape(-1,28,28)[27999])
-plt.show()
+#for i in range(28000):
+#    print(f"{str(i+1)},{y_pred[i]}")
 
