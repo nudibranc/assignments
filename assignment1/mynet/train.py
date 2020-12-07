@@ -3,6 +3,7 @@ import matplotlib as plt
 from matplotlib.pyplot import *
 from matplotlib import pyplot as plt
 from mynet import TwoLayerNet
+from twonet import MyTwoNet
 
 #get dataset
 X_train = None
@@ -40,12 +41,16 @@ hidden_size = 250
 num_classes = 10
 
 #initialize the net
-mynet = TwoLayerNet(input_size,hidden_size,num_classes)
+# mynet = TwoLayerNet(input_size,hidden_size,num_classes)
+# mynet.train(X_train.reshape(-1,28*28),y_train,X_val.reshape(-1,28*28),y_val)
+# y_pred = mynet.predict(X_test.reshape(-1,28*28))
+# print(X_test.shape)
+# print(y_pred.shape)
+# print(y_test.shape)
+
+mynet = MyTwoNet(input_size,hidden_size,num_classes)
 mynet.train(X_train.reshape(-1,28*28),y_train,X_val.reshape(-1,28*28),y_val)
-y_pred = mynet.predict(X_test.reshape(-1,28*28))
-print(X_test.shape)
-print(y_pred.shape)
-print(y_test.shape)
+y_pred = np.argmax(mynet.loss(X_test.reshape(-1,28*28)),axis=1)
 
 #check accuracy
 print(np.mean(y_pred == y_test))

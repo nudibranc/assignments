@@ -8,33 +8,33 @@ from past.builtins import xrange
 class MyTwoNet():
     def __init__(self, input_size, hidden_size, output_size):
         #store weights and biases in self_params
-        self_params = {}
-        self_params['b1'] = np.zeros(hidden_size)
-        self_params['b2'] = np.zeros(output_size)
-        self_params['W1'] = 1e-4*np.random.randn(input_size,hidden_size)
-        self_params['W2'] = 1e-4*np.random.randn(hidden_size,output_size)
+        self.params = {}
+        self.params['b1'] = np.zeros(hidden_size)
+        self.params['b2'] = np.zeros(output_size)
+        self.params['W1'] = 1e-4*np.random.randn(input_size,hidden_size)
+        self.params['W2'] = 1e-4*np.random.randn(hidden_size,output_size)
 
     #loss function, returns gradients if y is given
     def loss(self, X, y = None, reg = 5e-6):
         #retrieve W1, b1, W2, b2, N, and D
-        W1 = self_params['W1']
-        W2 = self_params['W2']
-        b1 = self_params['b1']
-        b2 = self_params['b2']
+        W1 = self.params['W1']
+        W2 = self.params['W2']
+        b1 = self.params['b1']
+        b2 = self.params['b2']
         N,D = X.shape
 
         #compute forward pass, dont forget the RelU
         #compute l1 X[N,D] x W1[D,H] + b1[H]= [N,H]
-        l1 = X.dot(W1) += b1
+        l1 = X.dot(W1) + b1
 
         #relu [N,H]
         l1r = np.maximum(0,l1)
 
         #compute score [N,H] x [H,C] + [C]= [N,C]
-        score = l1r.dot(W2) += b2
+        score = l1r.dot(W2) + b2
 
         #if no y, return scores
-        if (y==None):
+        if (y is None):
             return score
 
         #compute loss with softmax, numerical stability, and regularization 
@@ -47,7 +47,7 @@ class MyTwoNet():
         loss /= N
 
         #regularize 
-        loss += reg*np.sum(W1*W1) += reg*np.sum(W2*W2)
+        loss += reg*np.sum(W1*W1) + reg*np.sum(W2*W2)
 
         #compute gradients of W1, b1, W2, b2, 
         grads = {}
@@ -62,9 +62,9 @@ class MyTwoNet():
         db2 =  np.sum(softmax_matrix, axis=0)
 
         #gradient of W1
-        d1 = W2.dot(softmax_matrix.T)
+        d1 = softmax_matrix.dot(W2.T)
         drl = d1 * (l1>0)
-        dW1 = X.T.dot(dr1)
+        dW1 = X.T.dot(drl)
         dW1 += reg * 2 * W1
 
         #gradient of b1
@@ -80,6 +80,25 @@ class MyTwoNet():
                 learning_rate=1e-3, learning_rate_decay=0.95,
                 reg=5e-6, num_iters=1000,
                 batch_size=300, verbose=True):
+        #loop and compute loss 
+        num_train = X.shape[0]
+        for it in range(num_iters):
+            X_batch = None        
+            y_batch = None 
+
+            #generate batch data
+            index_array = (np.random.choice(num_train,batch_size))
+            X_batch = X[index_array]
+            y_batch = y[index_array]
+
+            #forward pass and gradients
+            loss, grads = self.loss(X_batch,y_batch,reg=reg)
+        
+            #backward pass
+            for key in self.params:
+                self.params[key] -= learning_rate * grads[key]
+       
+        
         
 
 
