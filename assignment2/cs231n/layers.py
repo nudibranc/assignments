@@ -28,13 +28,9 @@ def affine_forward(x, w, b):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     #reshape
-    D, M = w.shape
-    N = x.shape[0]
-    #x2 = x.reshape(N,np.prod(x[0].shape))
-    x2 = x.reshape(N,D)
-    
-    #out is shape [M]
-    out = x2.dot(w) + b
+    dim_size = x[0].shape
+    X = x.reshape(x.shape[0], np.prod(dim_size))
+    out = X.dot(w) + b
     
     pass
 
@@ -77,7 +73,7 @@ def affine_backward(dout, cache):
     
     #x grad
     dx = dout.dot(w.T)
-    dx = dx.reshape(N,x[0].shape[0],x[0].shape[1])
+    dx = dx.reshape(x.shape)
     
     pass
 
@@ -212,7 +208,14 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # might prove to be helpful.                                          #
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        sample_mean = np.mean(x, axis = 0)
+        sample_var = np.var(x, axis = 0) + eps
+        z = (x - sample_mean)/np.sqrt(sample_var)
+        out = gamma * z + beta
+        running_mean = momentum * running_mean + (1 - momentum) * sample_mean
+        running_var = momentum * running_var + (1 - momentum) * (sample_var)
 
+        cache={'x':x,'mean':sample_mean,'std':np.sqrt(sample_var),'gamma':gamma,'z':z,'var':sample_var}
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -227,7 +230,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # Store the result in the out variable.                               #
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        out = gamma * (x - running_mean)/np.sqrt(running_var + eps) + beta
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -269,7 +272,19 @@ def batchnorm_backward(dout, cache):
     # might prove to be helpful.                                              #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    dbeta = np.sum(dout, axis = 0)
+    dgamma = np.sum(dout * cache['z'], axis = 0)
+    N = 1.0 * dout.shape[0]
+    dfdz = dout * cache['gamma']                                    #[NxD]
+    dudx = 1/N                                                      #[NxD]
+    dvdx = 2/N * (cache['x'] - cache['mean'])                       #[NxD] 
+    dzdx = 1 / cache['std']                                         #[NxD]
+    dzdu = -1 / cache['std']                                        #[1xD]
+    dzdv = -0.5*(cache['var']**-1.5)*(cache['x']-cache['mean'])     #[NxD]
+    dvdu = -2/N * np.sum(cache['x'] - cache['mean'], axis=0)        #[1xD]
 
+    dx = dfdz*dzdx + np.sum(dfdz*dzdu,axis=0)*dudx + \
+         np.sum(dfdz*dzdv,axis=0)*(dvdx+dvdu*dudx)
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****

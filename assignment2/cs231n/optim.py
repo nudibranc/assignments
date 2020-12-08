@@ -68,7 +68,9 @@ def sgd_momentum(w, dw, config=None):
     # the next_w variable. You should also use and update the velocity v.     #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    
+    v = config['momentum'] * v - config['learning_rate'] * dw
+    next_w = w + v
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -106,7 +108,12 @@ def rmsprop(w, dw, config=None):
     # config['cache'].                                                        #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    eps, learning_rate = config['epsilon'], config['learning_rate']
+    beta, v = config['decay_rate'], config['cache']
+    # RMSprop
+    v = beta * v + (1 - beta) * (dw * dw)        # exponential weighted average
+    next_w = w - learning_rate * dw / (np.sqrt(v) + eps)
+    config['cache'] = v
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -151,7 +158,18 @@ def adam(w, dw, config=None):
     # using it in any calculations.                                           #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    eps, learning_rate = config['epsilon'], config['learning_rate']
+    beta1, beta2 = config['beta1'], config['beta2']
+    m, v, t = config['m'], config['v'], config['t']
+    # Adam
+    t = t + 1
+    m = beta1 * m + (1 - beta1) * dw          # momentum
+    mt = m / (1 - beta1**t)                   # bias correction
+    v = beta2 * v + (1 - beta2) * (dw * dw)   # RMSprop
+    vt = v / (1 - beta2**t)                   # bias correction
+    next_w = w - learning_rate * mt / (np.sqrt(vt) + eps)
+    # update values
+    config['m'], config['v'], config['t'] = m, v, t
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
