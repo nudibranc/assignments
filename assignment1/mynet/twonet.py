@@ -4,6 +4,7 @@ from builtins import object
 import numpy as np
 import matplotlib.pyplot as plt
 from past.builtins import xrange
+import torch
 
 class MyTwoNet():
     def __init__(self, input_size, hidden_size, output_size):

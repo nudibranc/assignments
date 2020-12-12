@@ -15,7 +15,6 @@ y_test = None
 
 #predict the data
 final_x = np.array(pd.read_csv('/home/carlos/Downloads/test.csv', sep=',',dtype = np.uint8))
-print(final_x.shape)
 
 #X training data
 data = np.array(pd.read_csv('/home/carlos/Downloads/train.csv', sep=',',dtype = np.uint8))
