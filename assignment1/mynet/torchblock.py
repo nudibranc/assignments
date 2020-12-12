@@ -62,22 +62,11 @@ def train_part34(model, optimizer, epochs=1):
             model.train()  # put model to training mode
             x = x.to(device=device, dtype=dtype)  # move to device, e.g. GPU
             y = y.to(device=device, dtype=torch.long)
-
             scores = model(x)
-            loss = F.cross_entropy(scores, y)
-
-            # Zero out all of the gradients for the variables which the optimizer
-            # will update.
+            loss = F.cross_entropy(scores,y)
             optimizer.zero_grad()
-
-            # This is the backwards pass: compute the gradient of the loss with
-            # respect to each  parameter of the model.
             loss.backward()
-
-            # Actually update the parameters of the model using the gradients
-            # computed by the backwards pass.
             optimizer.step()
-
             if t % print_every == 0:
                 print('Iteration %d, loss = %.4f' % (t, loss.item()))
                 check_accuracy_part34(loader_val, model)
@@ -128,13 +117,9 @@ class ResNet(nn.Module):
         self.maxpool = nn.MaxPool2d(2,2)
         self.fc = nn.Linear(hidden_channels[3]*14*14, num_classes)
     def forward(self,x):
-     
         out = F.relu(self.bn(self.conv(x)))
-    
         out = self.res1(out)
-   
         out = self.res2(out)
-      
         out = self.res3(out)
         out = self.maxpool(out)
         out = self.fc(flatten(out))
